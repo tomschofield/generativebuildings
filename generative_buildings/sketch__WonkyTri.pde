@@ -55,6 +55,7 @@ class WonkyTri {
       vertex(vertexPoints[i].x, vertexPoints[i].y );
    //   ellipse(vertexPoints[i].x, vertexPoints[i].y ,5,5);
     }
+    vertex(vertexPoints[0].x, vertexPoints[0].y );
     endShape();
     popStyle();
   }

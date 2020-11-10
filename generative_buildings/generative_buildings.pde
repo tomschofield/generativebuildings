@@ -1,29 +1,34 @@
 import processing.serial.*;
 /*
 Todo
-mosques 
-serial hook up
-make saturation globally controlable
-add gui? parameters: mountain spikeyness , saturation, building widht, number of buildings, zoom
-*/
+ mosques
+ serial hook up
+ make saturation globally controlable
+ add gui? parameters: mountain spikeyness , saturation, building widht, number of buildings, zoom
+ */
 Serial myPort;  // Create object from Serial class
 Building b;
 BLine line;
 BLine line2;
 BLine [] lines;
 float baseLine;
+float globalSaturation=30;
+float globalBrightness=85;
+float zoomSpeed = 0.003;
 WonkyTri tri;
 PImage img;
-int joyStickVal = 0;
+float joyStickVal = 3.0;
 MountainRange mountains;
 MountainRange mountainsDistance;
 boolean squash = false;
 boolean unSquash = false;
-boolean runSerial = false;
+boolean runSerial = true;
 void setup() {
-  size(1200, 800, JAVA2D);
+  //size(1200, 800, JAVA2D);
+  fullScreen(JAVA2D);
+  noCursor();
   if (runSerial) {
-    String portName = Serial.list()[3];
+    String portName = Serial.list()[1];
     myPort = new Serial(this, portName, 9600);
     myPort.bufferUntil(10);
   }
@@ -38,12 +43,12 @@ void setup() {
   smooth();
   color strokeCol  =color(23, 69, 17);
 
-  img = loadImage("72.png");
-  float saturation = 25;
-  color mountainCol  =color(random(300, 330), random(saturation-10, saturation+10), random(75, 85));
+  img = loadImage("paper_texture_mid.png");
+  float mountainSaturation = 25;
+  color mountainCol  =color(random(300, 330), random(mountainSaturation-10, mountainSaturation+10), random(75, 85));
 
   mountains = new MountainRange(0, int(baseLine), width, int(height*0.2), 300, mountainCol);
-  mountainCol  =color(random(300, 330), random(saturation-20, saturation), random(75, 85));
+  mountainCol  =color(random(300, 330), random(mountainSaturation-20, mountainSaturation), random(75, 85));
   mountainsDistance = new MountainRange(0, int(baseLine), width, int(height*0.25), 300, mountainCol);
 }
 void scaleFromCentre(float sc, float baseLine) {
@@ -55,7 +60,11 @@ void scaleFromCentre(float sc, float baseLine) {
 }
 void draw() {
   background(255);
-  float scaleFactor  = map(mouseY, 0, height, 0, 6);
+  //float scaleFactor  = map(mouseY, 0, height, 0, 6);
+  //joyStickVal = constrain(joyStickVal,170,1023);
+  float scaleFactor  = joyStickVal ;//map(joyStickVal, 170, 1023, 0, 6);
+
+
   mountainsDistance.display();
   mountains.display();
 
@@ -83,28 +92,54 @@ void draw() {
     if (!allBuildingsAreSquashed()) {
       squashAll();
     } else {
+      regenerateBuildings();
+      unSquash=true;
       squash=false;
+    }
+  }
+  if (unSquash ==true) {
+    println("unsquash", unSquash);
+    if (!allBuildingsAreUnSquashed()) {
+      unSquashAll();
+    } else {
+      unSquash=false;
     }
   }
 }
 void keyPressed() {
 
-  if (key=='a') {
+  if (key=='a' && !unSquash) {
     println("a");
     squash = true;
-  } else if (key=='a') {
+  } else if (key=='b' && !squash) {
+    unSquash = true;
   } else if (key=='c') {
+    regenerateBuildings();
+  }
+}
+void regenerateBuildings() {
+  lines = new BLine [10];
+  createLines();
+  for (int i=0; i<lines.length; i++) {
+    lines[i].setToSquashed();
   }
 }
 void createLines() {
+
   for (int i=0; i<lines.length; i++) {
-    lines[i]= new BLine(baseLine, 40, map(i, 0, lines.length, 10, 60), 60);
+    lines[i]= new BLine(baseLine, 40, map(i, 0, lines.length, 10, globalSaturation), globalBrightness, 60);
   }
 }
 void squashAll() {
 
   for (int i=0; i<lines.length; i++) {
     lines[i].squash();
+  }
+}
+void unSquashAll() {
+
+  for (int i=0; i<lines.length; i++) {
+    lines[i].unSquash();
   }
 }
 boolean allBuildingsAreSquashed() {
@@ -114,6 +149,13 @@ boolean allBuildingsAreSquashed() {
   }
   return areSquashed;
 }
+boolean allBuildingsAreUnSquashed() {
+  boolean areUnSquashed = true;
+  for (int i=0; i<lines.length; i++) {
+    if (!lines[i].allBuildingsAreUnSquashed()) areUnSquashed=false;
+  }
+  return areUnSquashed;
+}
 
 void serialEvent(Serial thisPort) {
   //int inByte = thisPort.read();
@@ -121,9 +163,37 @@ void serialEvent(Serial thisPort) {
   //println(inString);
   if (splitTokens(inString, ":").length==2) {
 
-    if (splitTokens(inString, ":")[0].equals("A")) {
-      //   println("got serial",int(splitTokens(inString,":")[1].trim()));
-      joyStickVal = int(splitTokens(inString, ":")[1].trim());
+    if (splitTokens(inString, ":")[0].equals("J")) {
+      println("got serial", int(splitTokens(inString, ":")[1].trim()));
+      int val = int(splitTokens(inString, ":")[1].trim());
+      int centrePoint = 520;
+      if (val<centrePoint -20) {
+        if (joyStickVal>zoomSpeed) {
+          if(val<255){
+            joyStickVal-=(2*zoomSpeed);
+          }else{
+            joyStickVal-=zoomSpeed;
+          }
+          
+        }
+      }
+      if (val>centrePoint+20) {
+        if (joyStickVal<6) {
+          if(val<900){
+            joyStickVal+=zoomSpeed;
+          }else{
+            joyStickVal+=(zoomSpeed*2);
+          }
+          
+        }
+      }
+    } else if (splitTokens(inString, ":")[0].equals("B")) {
+      int button = int(splitTokens(inString, ":")[1].trim());
+      //  println("got serial",button);
+      if (button==1&&!squash && !unSquash) {
+        squash=true;
+      }
+      //  squash=true;
     }
   }
 }

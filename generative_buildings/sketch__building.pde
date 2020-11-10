@@ -7,6 +7,8 @@ class Building {
   Columns columns;
   PFont font;
   Window [] windows;
+  Minaret tower1;
+  Minaret tower2;
   float x, y, w, h;
   float scaleY = 1.0;
   float dh;
@@ -30,16 +32,15 @@ class Building {
 
 
     if (type.equals("home")) {
-      roof = new Roof("triangle", w, w*random(0.3, 0.6), roofCol);
+      roof = new Roof("triangle", w, w*random(0.2, 0.4), roofCol);
       body = new Body("home", w, h, col);
 
       doorW= dh * random(0.3, 0.4);
       float doorXPos = random((doorW*0.5), w-doorW);
       door = new Door("any", doorW, dh, doorXPos, h-dh, doorCol);
       // makeHouseWindows();
-      makeWindows(0.2, 0.4, 0.3, 0.4, 0.2, 0.4, 0);
-    } 
-    else if (type.equals("mosque")) {
+      makeWindows("home", 0.2, 0.4, 0.3, 0.4, 0.2, 0.4, 0);
+    } else if (type.equals("mosque")) {
       roof = new Roof("mosque", w, w*random(0.3, 0.6), roofCol);
       body = new Body("townHall", w, h, col);
       columns = new Columns("townHall", w, h, col);
@@ -47,25 +48,27 @@ class Building {
       float doorXPos = random((doorW*0.5), w-doorW);
       door = new Door("any", doorW, dh, doorXPos, h-dh, doorCol);
       // makeHouseWindows();
-      
+      //String ty, float _w, float _h, float _x, float _y, color _col
+      float hMultipier = random(2.0, 2.999);
+      tower1 = new Minaret("mosque", w*0.2, h*hMultipier, x, y-(h*(hMultipier-1)), col);
+      //tower2 = new Minaret("mosque", w*0.2, h*hMultipier, x+(w*0.8), y-(h*(hMultipier-1)), col);
+
       //hack to make now winow
-      makeWindows(1.2,1.4, 0.3, 0.4, 0.2, 0.4, 0);
-    } 
-    else if(type.equals("townHall")) {
+      makeWindows("mosque", 1.2, 1.4, 0.3, 0.4, 0.2, 0.4, 0);
+    } else if (type.equals("townHall")) {
       roof = new Roof("townHall", w, w*random(0.2, 0.3), roofCol);
       body = new Body("townHall", w, h, col);
+
+
       columns = new Columns("townHall", w, h, col);
-      doorW= dh * random(0.3, 0.4);
-      float doorXPos = random((doorW*0.5), w-doorW);
+      doorW= dh * random(1.3, 1.4);
+      float doorXPos = (w*0.5)-doorW*0.5;
       door = new Door("any", doorW, dh, doorXPos, h-dh, doorCol);
       // makeHouseWindows();
-      
+
       //hack to make now winow
-      makeWindows(1.2,1.4, 0.3, 0.4, 0.2, 0.4, 0);
-    } 
-    
-    
-    else if (type.equals("factory")) {
+      makeWindows("townHall", 1.2, 1.4, 0.3, 0.4, 0.2, 0.4, 0);
+    } else if (type.equals("factory")) {
       float roofHeight = w*random(0.05, 0.1);
       roof = new Roof("saw", w, roofHeight, roofCol);
       body = new Body("home", w, h, col);
@@ -75,12 +78,12 @@ class Building {
       door = new Door("any", doorW, dh, doorXPos, h-dh, doorCol);
 
 
-      makeWindows(0.08, 0.1, 0.2, 0.3, 0.2, 0.4, 1);
+      makeWindows("factory", 0.08, 0.1, 0.2, 0.3, 0.2, 0.4, 1);
       makeRoofDecoration(0, w*0.05, w*0.06);
     } else if (type.equals("shop")) {
       roof = new Roof("shop", w, w*random(0.1, 0.2), roofCol);
       body = new Body("home", w, h, col);
-      float ah = h*0.3;
+      float ah = h*(random(0.15,0.2));
 
       awning = new Awning("awning", x, y +h -dh -ah, w, ah, (int) random(10, 16), col);
 
@@ -88,7 +91,7 @@ class Building {
       float doorXPos = random((doorW*0.1), (0.5*w)-doorW);
       door = new Door("any", doorW, dh, doorXPos, h-dh, doorCol);
       // makeFactoryWindows();
-      makeWindows(0.4, 0.45, 0.3, 0.35, 0.05, 0.1, 0);
+      makeWindows("shop", 0.4, 0.45, 0.3, 0.35, 0.05, 0.1, 0);
     } else if (type.equals("towerblock")) {
       float roofHeight =  w*random(0.1, 0.2);
       roof = new Roof("shop", w, roofHeight, roofCol);
@@ -103,7 +106,7 @@ class Building {
       float doorXPos = (w*0.5)-(doorW*0.5);
       door = new Door("any", doorW, dh, doorXPos, h-dh, doorCol);
       // makeFactoryWindows();
-      makeWindows(0.2, 0.3, 0.1, 0.15, 0.05, 0.1, 0);
+      makeWindows("towerblock", 0.2, 0.3, 0.1, 0.15, 0.05, 0.1, 0);
 
       makeRoofDecoration(roofHeight, w*0.25, w*0.3);
     }
@@ -117,23 +120,84 @@ class Building {
     translate(x, y-h);
     translate(0, h-(h*scaleY));
     scale(1, scaleY);
-    if (type.equals("towerblock")||  type.equals("factory")) {
+
+    if (type.equals("home")) {
+      body.display();
+      for (int i=0; i<windows.length; i++) {
+        windows[i].display();
+      }
+      door.display();
+      roof.display();
+    } else if (type.equals("towerblock")) {
+      body.display();
+      for (int i=0; i<windows.length; i++) {
+        windows[i].display();
+      }
       decoration.display();
-    }
-    roof.display();
-    if(!type.equals("townHall")) body.display();
-
-    for (int i=0; i<windows.length; i++) {
-      windows[i].display();
-    }
-
-    door.display();
-    if ( type.equals("shop")||  type.equals("towerblock")) {
+      door.display();
+      roof.display();
       awning.display();
-    }
-    if ( type.equals("townHall")|| type.equals("mosque")){
+    } else if (type.equals("factory")) {
+      body.display();
+      for (int i=0; i<windows.length; i++) {
+        windows[i].display();
+      }
+      door.display();
+      decoration.display();
+      roof.display();
+    } else if (type.equals("townHall")) {
+      body.display();
+      for (int i=0; i<windows.length; i++) {
+        windows[i].display();
+      }
+      door.display();
       columns.display();
+      roof.display();
+    } else if (type.equals("mosque")) {
+      body.display();
+      for (int i=0; i<windows.length; i++) {
+        windows[i].display();
+      }
+      tower1.display();
+      //  tower2.display();
+      door.display();
+      columns.display();
+      roof.display();
+    } else if (type.equals("shop")) {
+      body.display();
+      for (int i=0; i<windows.length; i++) {
+        windows[i].display();
+      }
+      door.display();
+      awning.display();
+      roof.display();
     }
+
+
+    //if (type.equals("towerblock")||  type.equals("factory")) {
+    //  decoration.display();
+    //}
+
+    //if (!type.equals("townHall")) body.display();
+
+    //for (int i=0; i<windows.length; i++) {
+    //  windows[i].display();
+    //}
+
+    //door.display();
+    //if ( type.equals("shop")||  type.equals("towerblock")) {
+    //  awning.display();
+    //}
+    //if ( type.equals("townHall")) {
+    //  columns.display();
+    //}
+    //if (type.equals("mosque")) {
+
+    //  tower1.display();
+    //  //  tower2.display();
+    //  columns.display();
+    //}
+    //roof.display();
     popMatrix();
     popStyle();
   }
@@ -141,10 +205,13 @@ class Building {
 
     String decType = "";
     float chooser = random(0.0, 100);
-    if (chooser<50) {
+    if (chooser<30) {
       decType="waterTower";
-    } else {
+    } else if (chooser>=30 && chooser <65){
       decType="cellMast";
+    }
+    else{
+      decType="aerial";
     }
     decoration = new RoofDecoration(decType, random(0, w*0.5), 0-roofHeight, decorationWidth, decorationHeight, col   );//float _x, float _y, float _w, float _h,  color _col)
   }
@@ -170,7 +237,7 @@ class Building {
   }
 
 
-  void makeWindows(float wl, float wh, float hl, float hh, float sl, float sh, int forceNumWindows) {
+  void makeWindows(String windowType, float wl, float wh, float hl, float hh, float sl, float sh, int forceNumWindows) {
     int windowW = (int)random(w*wl, w*wh);
     int windowH = (int)random(h*hl, h*hh);
     float windowToSpaceRatio = random(sl, sh);
@@ -212,12 +279,19 @@ class Building {
         if (type.equals("shop")) {
           l3 = new PVector(awning.x, awning.y);
           r3 = new PVector(awning.x+awning.w, awning.y+awning.h);
-        }
-        if (doOverlap( l1, r1, l2, r2) ) {
-          // if (doOverlap( l1, r1, l2, r2) ||doOverlap( l1, r1, l3, r3) ) {
-          windows[index] = new Window("sash", 0, 0, x, y, color(0, random(0, 10), random(200, 255)));
+          if (doOverlap( l1, r1, l3, r3)||doOverlap( l1, r1, l2, r2) ) {
+            // if (doOverlap( l1, r1, l2, r2) ||doOverlap( l1, r1, l3, r3) ) {
+            windows[index] = new Window(windowType, 0, 0, x, y, color(0, random(0, 10), random(200, 255)));
+          } else {
+            windows[index] = new Window(windowType, windowW, windowH, x, y, color(0, random(0, 10), random(200, 255)));
+          }
         } else {
-          windows[index] = new Window("sash", windowW, windowH, x, y, color(0, random(0, 10), random(200, 255)));
+          if (doOverlap( l1, r1, l2, r2) ) {
+            // if (doOverlap( l1, r1, l2, r2) ||doOverlap( l1, r1, l3, r3) ) {
+            windows[index] = new Window(windowType, 0, 0, x, y, color(0, random(0, 10), random(200, 255)));
+          } else {
+            windows[index] = new Window(windowType, windowW, windowH, x, y, color(0, random(0, 10), random(200, 255)));
+          }
         }
         index++;
       }

@@ -13,13 +13,15 @@ class Body {
     color strokeCol  =color(23, 69, 17);
     
 
-     wonkyRect  = new WonkyRect(0, 0, w, h, 5, random(0.1,1.5), col, strokeCol); 
+     wonkyRect  = new WonkyRect(0, 0, w, h, 5, random(0.1,1.2), col, strokeCol); 
     
   }
   void display() {
+    pushStyle();
     fill(col);
     //rect(0, 0, w, h);
     wonkyRect.display();
+    popStyle();
     
   }
 }

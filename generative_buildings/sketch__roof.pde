@@ -25,7 +25,7 @@ class Roof {
     } else if (type.equals("townHall")) {
 
       float hi = h*random(0.3, 0.4);
-      tri = new WonkyTri(0, -hi, w/2, -h, w, 0, 15, 0.3, col, strokeCol );
+      tri = new WonkyTri(0, -hi, w/2, -h, w, -hi, 5, 0.3, col, strokeCol );
 
       wonkyRect  = new WonkyRect(0, -hi, w, hi, 5, random(0.1, 0.3), col, strokeCol);
     } else if (type.equals("saw")) {
@@ -41,9 +41,9 @@ class Roof {
       if (random(1)>=0.5) leanLeft = false;
       for (int i=0; i<numTris; i++) {
         if (leanLeft) {
-          tris[i]  = new WonkyTri( i*roofSectionWidth, 0, (i*roofSectionWidth)+roofSectionWidth, -h, (i*roofSectionWidth)+roofSectionWidth, 0, 15, 0.3, col, strokeCol);
+          tris[i]  = new WonkyTri( i*roofSectionWidth, 0, (i*roofSectionWidth)+roofSectionWidth, -h, (i*roofSectionWidth)+roofSectionWidth, 0, 5, 0.3, col, strokeCol);
         } else {
-          tris[i]  = new WonkyTri( i*roofSectionWidth, 0, (i*roofSectionWidth), -h, (i*roofSectionWidth)+roofSectionWidth, 0, 15, 0.3, col, strokeCol);
+          tris[i]  = new WonkyTri( i*roofSectionWidth, 0, (i*roofSectionWidth), -h, (i*roofSectionWidth)+roofSectionWidth, 0, 5, 0.3, col, strokeCol);
         }
       }
     } else if (type.equals("shop")) {

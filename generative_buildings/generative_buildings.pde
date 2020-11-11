@@ -12,17 +12,18 @@ BLine line;
 BLine line2;
 BLine [] lines;
 float baseLine;
-float globalSaturation=30;
+float globalSaturation=40;
 float globalBrightness=85;
 float zoomSpeed = 0.003;
 WonkyTri tri;
 PImage img;
+PImage frame;
 float joyStickVal = 3.0;
 MountainRange mountains;
 MountainRange mountainsDistance;
 boolean squash = false;
 boolean unSquash = false;
-boolean runSerial = true;
+boolean runSerial = false;
 void setup() {
   //size(1200, 800, JAVA2D);
   fullScreen(JAVA2D);
@@ -44,6 +45,7 @@ void setup() {
   color strokeCol  =color(23, 69, 17);
 
   img = loadImage("paper_texture_mid.png");
+  frame = loadImage("bamboo_frame.png");
   float mountainSaturation = 25;
   color mountainCol  =color(random(300, 330), random(mountainSaturation-10, mountainSaturation+10), random(75, 85));
 
@@ -105,6 +107,7 @@ void draw() {
       unSquash=false;
     }
   }
+  image(frame,0,0,width,height);
 }
 void keyPressed() {
 
@@ -123,6 +126,28 @@ void regenerateBuildings() {
   for (int i=0; i<lines.length; i++) {
     lines[i].setToSquashed();
   }
+}
+void drawPictureFrame() {
+  float frameWidth = 50;
+  fill(23, 47, 50);
+  pushStyle();
+  //top side
+  beginShape();
+  vertex(0, 0);
+  vertex(width, 0);
+  vertex(width-frameWidth, frameWidth);
+  vertex(frameWidth, frameWidth);
+  vertex(0, 0);
+  endShape();
+  //right side
+  beginShape();
+  vertex(width, 0);
+  vertex(width, height);
+  vertex(width-frameWidth, height - frameWidth);
+  vertex(width -frameWidth, frameWidth);
+  vertex(width, 0);
+  endShape();
+  popStyle();
 }
 void createLines() {
 
@@ -169,22 +194,20 @@ void serialEvent(Serial thisPort) {
       int centrePoint = 520;
       if (val<centrePoint -20) {
         if (joyStickVal>zoomSpeed) {
-          if(val<255){
+          if (val<255) {
             joyStickVal-=(2*zoomSpeed);
-          }else{
+          } else {
             joyStickVal-=zoomSpeed;
           }
-          
         }
       }
       if (val>centrePoint+20) {
         if (joyStickVal<6) {
-          if(val<900){
+          if (val<900) {
             joyStickVal+=zoomSpeed;
-          }else{
+          } else {
             joyStickVal+=(zoomSpeed*2);
           }
-          
         }
       }
     } else if (splitTokens(inString, ":")[0].equals("B")) {
